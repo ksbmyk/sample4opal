@@ -5,25 +5,23 @@ class AppView
   include Hyalite::Component
 
   def play
-    %x(
-      var context = new AudioContext();
-      var buffer = null;
-      var source = context.createBufferSource();
+    context = Native(`new AudioContext()`)
+    source = context.createBufferSource
 
-      var request = new XMLHttpRequest();
-      request.open('GET', 'assets/sounds/sample.mp3', true);
-      request.responseType = 'arraybuffer';
-      request.send();
+    request = Native(`new XMLHttpRequest()`)
+    request.open('GET', 'assets/sounds/sample.mp3', true)
+    request.responseType = 'arraybuffer'
+    request.send
 
-      request.onload = function() {
-        var res = request.response;
-        context.decodeAudioData(res, function(buf) {
-          source.buffer = buf;
-        });
-      };
-      source.connect(context.destination);
-      source.start(0);
-    )
+    request.onload = Proc.new do
+      res = request.response
+      context.decodeAudioData(res) do |buf|
+        source.buffer = buf
+      end
+    end
+
+    source.connect(context.destination)
+    source.start(0)
   end
 
   def render
